@@ -1,0 +1,7 @@
+CREATE TABLE payments (
+    payment_id UUID PRIMARY KEY,
+    event_id UUID NOT NULL UNIQUE,
+    wallet_id VARCHAR(100) NOT NULL,
+    amount NUMERIC(19, 2) NOT NULL,
+    processed_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

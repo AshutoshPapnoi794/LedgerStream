@@ -1,0 +1,38 @@
+# Java / Maven
+**/target/
+**/build/
+*.class
+*.jar
+*.war
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+**/application-local.yml
+**/application-secrets.yml
+**/secrets.yml
+*.pem
+*.key
+
+# Local databases and generated data
+postgres-data/
+redis-data/
+data/
+
+# Temporary files
+*.tmp
+*.swp
