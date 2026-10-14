@@ -49,6 +49,11 @@ public class WalletDebitIntegrationTest {
                 walletId
         );
 
+        jdbcTemplate.update(
+                "DELETE FROM wallet_transactions WHERE wallet_id = ?",
+                walletId
+        );
+
         jdbcTemplate.update("""
                 DELETE FROM wallets WHERE wallet_id = ?
                 """,
@@ -78,7 +83,16 @@ public class WalletDebitIntegrationTest {
                 event.eventId()
         );
 
+        Integer transactionCount = jdbcTemplate.queryForObject("""
+        SELECT COUNT(*)
+        FROM wallet_transactions
+        WHERE event_id = ?
+        """,
+                Integer.class,
+                event.eventId()
+        );
 
+        assertEquals(1, transactionCount);
         assertEquals(0, new BigDecimal("750.00").compareTo(balance));
         assertEquals(1,eventCount);
     }

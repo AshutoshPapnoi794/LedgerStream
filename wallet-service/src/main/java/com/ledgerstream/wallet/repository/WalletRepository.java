@@ -36,4 +36,15 @@ public class WalletRepository {
 
         return count != null && count > 0;
     }
+
+    public BigDecimal findBalance(String walletId) {
+        return jdbcTemplate.queryForObject("""
+            SELECT balance
+            FROM wallets
+            WHERE wallet_id = ?
+            """,
+                BigDecimal.class,
+                walletId
+        );
+    }
 }

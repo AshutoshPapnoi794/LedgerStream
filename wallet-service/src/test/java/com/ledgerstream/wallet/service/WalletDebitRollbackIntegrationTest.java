@@ -91,6 +91,16 @@ class WalletDebitRollbackIntegrationTest {
                 walletId
         );
 
+        Integer transactionCount = jdbcTemplate.queryForObject("""
+        SELECT COUNT(*)
+        FROM wallet_transactions
+        WHERE wallet_id = ?
+        """,
+                Integer.class,
+                walletId
+        );
+
+        assertEquals(0, transactionCount);
         assertEquals(
                 0,
                 new BigDecimal("1000.00").compareTo(balance)

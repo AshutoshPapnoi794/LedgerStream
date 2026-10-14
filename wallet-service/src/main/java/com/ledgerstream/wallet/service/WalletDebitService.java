@@ -3,6 +3,7 @@ package com.ledgerstream.wallet.service;
 import com.ledgerstream.wallet.event.WalletDebitedEvent;
 import com.ledgerstream.wallet.outbox.WalletOutboxService;
 import com.ledgerstream.wallet.repository.WalletRepository;
+import com.ledgerstream.wallet.repository.WalletTransactionRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,10 +16,12 @@ import java.util.UUID;
 @Service
 public class WalletDebitService {
     private final WalletRepository walletRepository;
+    private final WalletTransactionRepository walletTransactionRepository;
     private final WalletOutboxService walletOutboxService;
 
-    public WalletDebitService(WalletRepository walletRepository, WalletOutboxService walletOutboxService) {
+    public WalletDebitService(WalletRepository walletRepository, WalletTransactionRepository walletTransactionRepository, WalletOutboxService walletOutboxService) {
         this.walletRepository = walletRepository;
+        this.walletTransactionRepository = walletTransactionRepository;
         this.walletOutboxService = walletOutboxService;
     }
 
@@ -67,6 +70,16 @@ public class WalletDebitService {
                 amount,
                 Instant.now()
         );
+
+        BigDecimal balanceAfter = walletRepository.findBalance(walletId);
+
+        walletTransactionRepository.saveDebit(
+                walletId,
+                event.eventId(),
+                amount,
+                balanceAfter
+        );
+
         walletOutboxService.saveEvent(event);
 
         return event;

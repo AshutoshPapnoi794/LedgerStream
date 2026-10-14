@@ -3,6 +3,7 @@ package com.ledgerstream.wallet.service;
 import com.ledgerstream.wallet.event.WalletDebitedEvent;
 import com.ledgerstream.wallet.outbox.WalletOutboxService;
 import com.ledgerstream.wallet.repository.WalletRepository;
+import com.ledgerstream.wallet.repository.WalletTransactionRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +25,8 @@ public class WalletDebitServiceTest {
     private WalletRepository walletRepository;
     @Mock
     private WalletOutboxService walletOutboxService;
+    @Mock
+    private WalletTransactionRepository walletTransactionRepository;
     @InjectMocks
     private WalletDebitService walletDebitService;
 
@@ -31,11 +34,19 @@ public class WalletDebitServiceTest {
     void successfulDebitCreatesOutboxEvent(){
         when(walletRepository.debitIfSufficient("wallet-101",new BigDecimal("500")))
                 .thenReturn(1);
+        when(walletRepository.findBalance("wallet-101"))
+                .thenReturn(new BigDecimal("9500.00"));
 
         WalletDebitedEvent event = walletDebitService.debit("wallet-101",new BigDecimal("500"));
 
         assertEquals("wallet-101",event.walletId());
         assertEquals(0, new BigDecimal("500").compareTo(event.amount()));
+        verify(walletTransactionRepository).saveDebit(
+                eq("wallet-101"),
+                eq(event.eventId()),
+                eq(new BigDecimal("500")),
+                eq(new BigDecimal("9500.00"))
+        );
         verify(walletOutboxService).saveEvent(event);
     }
 
@@ -81,7 +92,7 @@ public class WalletDebitServiceTest {
                         BigDecimal.ZERO
                 )
         );
-        verifyNoInteractions(walletRepository,walletOutboxService);
+        verifyNoInteractions(walletRepository,walletOutboxService,walletTransactionRepository);
     }
 
 
